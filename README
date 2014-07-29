@@ -1,0 +1,29 @@
+This doc is used to do embedding related job
+
+doEmcEmbedEvent.C is used to produce pico tree
+the script to run the do EmcEmbedEvent.C is submit.csh
+the produce should in the library SL11d
+so do 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+starver SL11d
+cons
+./submit.csh psi 10[0,1] 1000
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+the produced pico tree root files should in the doc of
+out_psi_10[0,1]
+all the log file are in 
+log_psi_10[0,1]
+and the script are in
+script_psi_10[0,1]
+
+
+qa.csh is usd to do QA related work
+when you run it 
+./qa.csh psi 10[0,1] 0 9
+
+
+psi.csh is used to do calculate psi efficiency
+when you run it 
+./qs.csh psi 10[0,1] 0 9
+
+
