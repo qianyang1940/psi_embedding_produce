@@ -4,7 +4,7 @@
 #set inputDir  = ./production2009_200GeV/$1_$2_20104802
 #electron
 set inputDir  = ./out_$1_$2/
-set outputName = ./EffOutput/psiEff_2011_$1_$2
+set outputDir = ./EffOutput/psiEff_2011_$1_$2
 set logDir = ./logEff_$1_$2
 mkdir $outputDir
 mkdir $logDir
@@ -20,7 +20,7 @@ echo -n $inputDir>>run_tmp.csh
 echo -n '","'>>run_tmp.csh
 #       echo -n $baseName>>run_tmp.csh
 #       echo -n '","'>>run_tmp.csh
-echo -n $outputName>>run_tmp.csh
+echo -n $outputDir>>run_tmp.csh
 #       echo -n '","'>>run_tmp.csh
 echo -n '",'>>run_tmp.csh
 echo -n $3>>run_tmp.csh

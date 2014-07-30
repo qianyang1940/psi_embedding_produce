@@ -143,460 +143,463 @@ TH3F *hHt3ElectronDist = new TH3F("hHt3ElectronDist","hHt3ElectronDist;#eta^{mc}
 TH3F *hElectronTrk2 = new TH3F("hElectronTrk2","hElectronTrk2;#eta^{mc};#phi^{mc};p_{T}^{mc} (GeV/c)",40,-1.,1.,120,-TMath::Pi,TMath::Pi(),250,0,25);
 
 TH2F *hdEtadPhi = new TH2F("hdEtadPhi","hdEtadPhi;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
-TH2F *hdEtadPhiHT0 = new TH2F("hdEtadPhiHT0","hdEtadPhiHT0;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
+TH2F *hdEtadPhiHT1 = new TH2F("hdEtadPhiHT1","hdEtadPhiHT1;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
 TH2F *hdEtadPhiCut = new TH2F("hdEtadPhiCut","hdEtadPhiCut;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
-TH2F *hdEtadPhiHT0Cut = new TH2F("hdEtadPhiHT0Cut","hdEtadPhiHT0Cut;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
-TH2F *hDeltaRHT0vspt = new TH2F("hDeltaRHT0vspt","hDeltaRHT0vspt;p_{T} (GeV/c);dR",250,0,25,500,0,5);
+TH2F *hdEtadPhiHT1Cut = new TH2F("hdEtadPhiHT1Cut","hdEtadPhiHT0Cut;#DeltaY;#Delta#phi",500,-2.5,2.5,628,-TMath::Pi(),TMath::Pi());
+TH2F *hDeltaRHT1vspt = new TH2F("hDeltaRHT1vspt","hDeltaRHT1vspt;p_{T} (GeV/c);dR",250,0,25,500,0,5);
 TH2F *hDeltaRvspt = new TH2F("hDeltaRvspt","hDeltaRvspt;p_{T} (GeV/c);dR",250,0,25,500,0,5);
-TH2F *hDeltaRHT0vsptCut = new TH2F("hDeltaRHT0vsptCut","hDeltaRHT0vsptCut;p_{T} (GeV/c);dR",250,0,25,500,0,5);
+TH2F *hDeltaRHT1vsptCut = new TH2F("hDeltaRHT1vsptCut","hDeltaRHT1vsptCut;p_{T} (GeV/c);dR",250,0,25,500,0,5);
 TH2F *hDeltaRvsptCut = new TH2F("hDeltaRvsptCut","hDeltaRvsptCut;p_{T} (GeV/c);dR",250,0,25,500,0,5);
 
 void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int mCentCut1=0, const int mCentCut2=9){
-  gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
-  loadSharedLibraries();
-  gSystem->Load("StMyElectronMaker");
+	gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
+	loadSharedLibraries();
+	gSystem->Load("StMyElectronMaker");
 
-  const Int_t nFilesMax = 10000;
-
-
-  mElectronEvent = new StMyElectronEvent();
-
-  TChain chMc("mcT");
-  chMc.SetBranchAddress("mcE",&mElectronEvent);
+	const Int_t nFilesMax = 10000;
 
 
-//	chMc.Add("mcJpsi.root");
-  //char filename[128];
-  //sprintf(filename,"/auto/stardata/starspec2/xzb/%s",file);
-  const float pi = 3.1415926;
-  void* dir = gSystem->OpenDirectory(gSystem->ExpandPathName(fileInDir));
-  int nruns=0;
-  char *file_name;
-  TString Tname;
-  char file_list[nFilesMax][256];
-  do {
-    file_name = (char*)gSystem->GetDirEntry(dir);
-//	cout<<" file_name "<<file_name<<endl;
-    Tname=file_name;
-//    if (file_name && Tname.Contains("geant.root")) {
-      if(file_name && Tname.Contains("myminimc.root")&&Tname.Contains("emb")) {
+	mElectronEvent = new StMyElectronEvent();
 
-      sprintf(file_list[nruns],"%s/%s",fileInDir,file_name);
-      chMc.Add(file_list[nruns]);
-      cout << " read in " << file_list[nruns] << endl;
-      nruns++;
-    }
-  } while (file_name && nruns<=nFilesMax);
+	TChain chMc("mcT");
+	chMc.SetBranchAddress("mcE",&mElectronEvent);
 
-//  ch.Add(fileIn);
-  int iret = 0;
-  int nb=0;
-  cout << chMc.GetEntries() << " events in chain" << endl;
-  int nevents = chMc.GetEntries();
-  for (int i = 0; i < nevents; i++) {
-    nb +=chMc.GetEvent(i);
-    chMc.GetEvent(i);
-    if(i%10000==0) cout<<"event# "<<i<<endl;
-    int n;
-    if (!mElectronEvent) continue;
-    if (mElectronEvent->eventID()<=0) continue;
-    // cout<<"haha"<<endl;
-    hMcVertexZ->Fill(mElectronEvent->mcVertexZ());
-    hMcVertexXY->Fill(mElectronEvent->mcVertexX(), mElectronEvent->mcVertexY());
-    hRcVertexZ->Fill(mElectronEvent->vertexZ());
-    hVertexZdiff->Fill(mElectronEvent->vertexZ() - mElectronEvent->mcVertexZ());
-    int Mult = mElectronEvent->refMultPos() + mElectronEvent->refMultNeg();
-      //if(mElectron->pGeantId>0) continue;//not original electron
-    hRefMult->Fill(Mult);
-    int cent = getCentrality(Mult);
-    if(cent<mCentCut1||cent>mCentCut2)continue;
-    hRefMultCut->Fill(Mult);
 
-    for(int j=0;j<mElectronEvent->nReal();j++){
-          mElectron = (StMyElectron) mElectronEvent->real()->UncheckedAt(j);
-	           //cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
-	  if(mElectron->pGeantId!=160) continue;//not from Jpsi electron
-		         //if(mElectron->pGeantId>0) continue;//not original electron
-	   if(mElectron->mcId<0) continue;
+	//	chMc.Add("mcJpsi.root");
+	//char filename[128];
+	//sprintf(filename,"/auto/stardata/starspec2/xzb/%s",file);
+	const float pi = 3.1415926;
+	void* dir = gSystem->OpenDirectory(gSystem->ExpandPathName(fileInDir));
+	int nruns=0;
+	char *file_name;
+	TString Tname;
+	char file_list[nFilesMax][256];
+	do {
+		file_name = (char*)gSystem->GetDirEntry(dir);
+		//	cout<<" file_name "<<file_name<<endl;
+		Tname=file_name;
+		//    if (file_name && Tname.Contains("geant.root")) {
+		if(file_name && Tname.Contains("myminimc.root")&&Tname.Contains("emb")) {
 
-      bool tag = kFALSE;
-      for(int k=0;k<mElectronEvent->nReal();k++) {
-	mElectron2 = (StMyElectron) mElectronEvent->real()->UncheckedAt(k);
-	if(mElectron2->pGeantId!=160) continue;
-	if(mElectron2->mcId<0) continue;
-	if(mElectron2->mcId==mElectron->mcId) continue;
-	if(mElectron2->pId==mElectron->pId) continue;
-	Double_t deta = mElectron->mcY - mElectron2->mcY;
-	Double_t dphi = mElectron->mcPhi - mElectron2->mcPhi;
-	while(dphi>2*TMath::Pi()) dphi -= 2.*TMath::Pi();
-	while(dphi<0) dphi += 2.*TMath::Pi();
-	while(dphi>TMath::Pi()) dphi = dphi - 2*TMath::Pi();
-	if(TMath::Abs(deta)<0.1&&TMath::Abs(dphi)<0.5) tag = kTRUE;
-	if(k>j) {
-	  hdEtadPhi->Fill(deta,dphi);
-	  Double_t dr = sqrt(pow(deta,2)+pow(dphi,2));
-	  Double_t ptlow = (mElectron->pt<mElectron2->pt)? mElectron->pt:mElectron2->pt;
-	  //Double_t ptlow = mElectron2->pt;
-	  hDeltaRvspt->Fill(ptlow,dr);
-	  if(!tag) {
-	    hDeltaRvsptCut->Fill(ptlow,dr);
-	    hdEtadPhiCut->Fill(deta,dphi);
-	  }
+			sprintf(file_list[nruns],"%s/%s",fileInDir,file_name);
+			chMc.Add(file_list[nruns]);
+			cout << " read in " << file_list[nruns] << endl;
+			nruns++;
+		}
+	} while (file_name && nruns<=nFilesMax);
 
-	  if(mElectron->dsmAdc0>11&&mElectron->adc0>180&&mElectron2->dsmAdc0>11&&mElectron2->adc0>180) {
-	    hDeltaRHT0vspt->Fill(ptlow,dr);
-	    hdEtadPhiHT0->Fill(deta,dphi);
-	    if(!tag)  {
-	      hDeltaRHT0vsptCut->Fill(ptlow,dr);
-	      hdEtadPhiHT0Cut->Fill(deta,dphi);
-	    }
-	  }
+		//  ch.Add(fileIn);
+		int iret = 0;
+		int nb=0;
+		cout << chMc.GetEntries() << " events in chain" << endl;
+		int nevents = chMc.GetEntries();
+		for (int i = 0; i < nevents; i++) {
+			nb +=chMc.GetEvent(i);
+			chMc.GetEvent(i);
+			if(i%10000==0) cout<<"event# "<<i<<endl;
+			int n;
+			if (!mElectronEvent) continue;
+			if (mElectronEvent->eventID()<=0) continue;
+			// cout<<"haha"<<endl;
+			hMcVertexZ->Fill(mElectronEvent->mcVertexZ());
+			hMcVertexXY->Fill(mElectronEvent->mcVertexX(), mElectronEvent->mcVertexY());
+			hRcVertexZ->Fill(mElectronEvent->vertexZ());
+			hVertexZdiff->Fill(mElectronEvent->vertexZ() - mElectronEvent->mcVertexZ());
+			int Mult = mElectronEvent->refMultPos() + mElectronEvent->refMultNeg();
+			//if(mElectron->pGeantId>0) continue;//not original electron
+			hRefMult->Fill(Mult);
+			int cent = getCentrality(Mult);
+			if(cent<mCentCut1||cent>mCentCut2)continue;
+			hRefMultCut->Fill(Mult);
+
+			for(int j=0;j<mElectronEvent->nReal();j++){
+				mElectron = (StMyElectron) mElectronEvent->real()->UncheckedAt(j);
+				//cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
+				if(mElectron->pGeantId!=167) continue;//not from Jpsi electron
+				//if(mElectron->pGeantId>0) continue;//not original electron
+				if(mElectron->mcId<0) continue;
+
+				bool tag = kFALSE;
+				for(int k=0;k<mElectronEvent->nReal();k++) {
+					mElectron2 = (StMyElectron) mElectronEvent->real()->UncheckedAt(k);
+					if(mElectron2->pGeantId!=167) continue;
+					if(mElectron2->mcId<0) continue;
+					if(mElectron2->mcId==mElectron->mcId) continue;
+					if(mElectron2->pId==mElectron->pId) continue;
+
+					Double_t deta = mElectron->mcY - mElectron2->mcY;
+					Double_t dphi = mElectron->mcPhi - mElectron2->mcPhi;
+					while(dphi>2*TMath::Pi()) dphi -= 2.*TMath::Pi();
+					while(dphi<0) dphi += 2.*TMath::Pi();
+					while(dphi>TMath::Pi()) dphi = dphi - 2*TMath::Pi();
+					if(TMath::Abs(deta)<0.1&&TMath::Abs(dphi)<0.5) tag = kTRUE;
+					if(k>j) {
+						hdEtadPhi->Fill(deta,dphi);
+						Double_t dr = sqrt(pow(deta,2)+pow(dphi,2));
+						Double_t ptlow = (mElectron->pt<mElectron2->pt)? mElectron->pt:mElectron2->pt;
+						//Double_t ptlow = mElectron2->pt;
+						hDeltaRvspt->Fill(ptlow,dr);
+						if(!tag) {
+							hDeltaRvsptCut->Fill(ptlow,dr);
+							hdEtadPhiCut->Fill(deta,dphi);
+						}
+
+						if(mElectron->dsmAdc0>18&&mElectron->adc0>290&&mElectron2->dsmAdc0>18&&mElectron2->adc0>290) {
+							hDeltaRHT1vspt->Fill(ptlow,dr);
+							hdEtadPhiHT1->Fill(deta,dphi);
+							if(!tag)  {
+								hDeltaRHT1vsptCut->Fill(ptlow,dr);
+								hdEtadPhiHT1Cut->Fill(deta,dphi);
+							}
+						}
+					}
+				}
+				if(tag) continue;
+
+				if(mElectron->mcId>=0) {
+					hMcElectronPt->Fill(mElectron->mcPt);
+					hMcElectronY->Fill(mElectron->mcY);
+					hMcElectronPtY->Fill(mElectron->mcY, mElectron->mcPt);
+					hMcElectronPhi->Fill(mElectron->mcPhi);
+				}
+
+
+				if(mElectron->mcId>=0&&mElectron->id>=0){
+					if(mElectron->tpcCommonHits>10){
+						//cout<<mElectron->id<<endl;
+						float pt = mElectron->pt;
+						hRcElectronPt->Fill(pt);
+						hRcElectronEta->Fill(mElectron->eta);
+						hRcElectronPtEta->Fill(mElectron->eta, pt);
+						hRcElectronPhi->Fill(mElectron->phi);
+						//cout<<"haha"<<endl;
+						if(fabs(mElectron->eta)<1){
+							hRcElectronnFitPtsPt->Fill(pt, mElectron->nFitPts+1);
+							hRcElectronnHitPtsPt->Fill(pt, mElectron->nHitPts+1);
+							hRcElectronnSigEP->Fill(mElectron->p, mElectron->nSigE);
+							hRcElectronDcaPt->Fill(pt, mElectron->dca);
+
+							Float_t p = mElectron->p;
+							Float_t poE = (mElectron->energy>0)? p/mElectron->energy:9999.;
+							hPvsE->Fill(p,mElectron->energy);
+							hPmcvsE->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
+							hPEvsPt->Fill(pt, poE);
+							hnEtavsPt->Fill(pt, mElectron->nEta);
+							hnPhivsPt->Fill(pt, mElectron->nPhi);
+							hZDistvsPt->Fill(pt, mElectron->zDist);
+							hPhiDistvsPt->Fill(pt, mElectron->phiDist);
+
+							if(mElectron->geantId==2)
+							{
+								hRcElectronPhiptPos->Fill(pt,mElectron->phi);
+							}
+							if(mElectron->geantId==3)
+							{
+								hRcElectronPhiptNeg->Fill(pt,mElectron->phi);
+							}
+
+							Float_t ptMc = mElectron->mcPt;
+							Float_t mcY = mElectron->mcY;
+							hDsmAdcvsPt->Fill(ptMc, mElectron->dsmAdc0);
+							hAdc0vsPt->Fill(ptMc, mElectron->adc0);
+							hDsmAdc0vsAdc0->Fill(mElectron->adc0, mElectron->dsmAdc0);
+
+							if(mElectron->dsmAdc0>11) {
+								hHt0Adc0vsPt->Fill(ptMc, mElectron->adc0);
+								hHt0Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
+								hPvsEHT0->Fill(p,mElectron->energy);
+								if(mElectron->nFitPts>=25&&mElectron->dca<1)
+								{
+									hHt0Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
+									if(mElectron->nEta>=2&&mElectron->nPhi>=2){
+										if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+											hHt0Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
+										}
+									}
+								}
+								hPvsEHT0->Fill(p,mElectron->energy);
+								hPmcvsEHT0->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
+								hPEvsPtHT0->Fill(pt, poE);
+								hnEtavsPtHT0->Fill(pt, mElectron->nEta);
+								hnPhivsPtHT0->Fill(pt, mElectron->nPhi);
+								hZDistvsPtHT0->Fill(pt, mElectron->zDist);
+								hPhiDistvsPtHT0->Fill(pt, mElectron->phiDist);
+							}
+							if(mElectron->dsmAdc0>15) {
+								hHt1Adc0vsPt->Fill(ptMc, mElectron->adc0);
+								hHt1Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
+								hPvsEHT1->Fill(p,mElectron->energy);
+								hPmcvsEHT1->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
+								hPEvsPtHT1->Fill(pt, poE);
+								hnEtavsPtHT1->Fill(pt, mElectron->nEta);
+								hnPhivsPtHT1->Fill(pt, mElectron->nPhi);
+								hZDistvsPtHT1->Fill(pt, mElectron->zDist);
+								hPhiDistvsPtHT1->Fill(pt, mElectron->phiDist);
+								if(mElectron->nFitPts>=25&&mElectron->dca<1)
+								{
+									hHt1Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
+									if(mElectron->nEta>=2&&mElectron->nPhi>2){
+										if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+											hHt1Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
+										}
+									}
+								}
+							}
+							if(mElectron->dsmAdc0>18) {
+								hHt2Adc0vsPt->Fill(ptMc, mElectron->adc0);
+								hHt2Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
+								hPvsEHT2->Fill(p,mElectron->energy);
+								hPmcvsEHT2->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
+								hPEvsPtHT2->Fill(pt, poE);
+								hnEtavsPtHT2->Fill(pt, mElectron->nEta);
+								hnPhivsPtHT2->Fill(pt, mElectron->nPhi);
+								hZDistvsPtHT2->Fill(pt, mElectron->zDist);
+								hPhiDistvsPtHT2->Fill(pt, mElectron->phiDist);
+								if(mElectron->nFitPts>=25&&mElectron->dca<1)
+								{
+									hHt2Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
+									if(mElectron->nEta>=2&&mElectron->nPhi>2){
+										if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01){
+											hHt2Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
+										}
+									}
+								}
+							}
+							if(mElectron->dsmAdc0>25) {
+								hHt3Adc0vsPt->Fill(ptMc, mElectron->adc0);
+								hHt3Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
+								hPvsEHT3->Fill(p,mElectron->energy);
+								hPmcvsEHT3->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
+								hPEvsPtHT3->Fill(pt, poE);
+								hnEtavsPtHT3->Fill(pt, mElectron->nEta);
+								hnPhivsPtHT3->Fill(pt, mElectron->nPhi);
+								hZDistvsPtHT3->Fill(pt, mElectron->zDist);
+								hPhiDistvsPtHT3->Fill(pt, mElectron->phiDist);
+								if(mElectron->nFitPts>=25&&mElectron->dca<1)
+								{
+									hHt3Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
+									if(mElectron->nEta>=2&&mElectron->nPhi>2){
+										if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01){
+											hHt3Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
+										}
+									}
+								}
+							}
+						}//end of |eta|<1 cut
+					}
+				}//end of RC electron loop
+
+				//calculate efficiency
+				if(mElectron->mcId>=0&&fabs(mElectron->mcY)<1) {
+					hElectronMc->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+					if(mElectron->id>=0 &&
+							fabs(mElectron->eta)<1 &&
+							mElectron->nFitPts>=25 &&
+							mElectron->dca<1) {//Tracking
+						hRcElectronPtDiff->Fill(mElectron->mcPt, mElectron->mcY, pt/mElectron->mcPt);
+						hRcElectronEtaDiff->Fill(mElectron->mcPt, mElectron->mcY, mElectron->eta - mElectron->mcY);
+						hRcElectronPhiDiff->Fill(mElectron->mcPt, mElectron->mcY, mElectron->phi - mElectron->mcPhi);
+
+						hElectronTrk->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+						if(mElectron->energy>0) {
+							hElectronMatch->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+
+							if(mElectron->dsmAdc0>11) {
+								hHt0ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+								if(mElectron->adc0>180) {
+									hHt0ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+									if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
+										hHt0ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+										if(mElectron->nEta>=2&&mElectron->nPhi>=2){
+											hHt0ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+												hHt0ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											}//distance
+										}//#SMD strips
+									}//PE
+								}//Adc0
+							}//Trigger
+
+
+							if(mElectron->dsmAdc0>15) {
+								hHt1ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+								if(mElectron->adc0>250) {
+									hHt1ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+									if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
+										hHt1ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+										if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
+											hHt1ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+												hHt1ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											}//distance
+										}//#SMD strips
+									}//PE
+								}//Adc0
+							}//Trigger
+
+							if(mElectron->dsmAdc0>18) {
+								hHt2ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+								if(mElectron->adc0>300) {
+									hHt2ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+									if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
+										hHt2ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+										if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
+											hHt2ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+												hHt2ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											}//distance
+										}//#SMD strips
+									}//PE
+								}//Adc0
+							}//Trigger
+
+							if(mElectron->dsmAdc0>25) {
+								hHt3ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+								if(mElectron->adc0>400) {
+									hHt3ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+									if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
+										hHt3ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+										if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
+											hHt3ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
+												hHt3ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
+											}//distance
+										}//#SMD strips
+									}//PE
+								}//Adc0
+							}//Trigger
+
+
+						}//EMC match
+					}//Tracking
+
+					if(mElectron->id>=0 &&
+							fabs(mElectron->eta)<1 &&
+							mElectron->nFitPts>=25 &&
+							mElectron->dca<3) {
+						hElectronTrk2->Fill(mElectron->mcY,mElectron->mcPhi,mElectron->mcPt);
+					}//Tracking 2
+
+				}
+				/*
+				   if(mElectron->energy>0) {
+				   cout<<"(pt, eta, phi)- = "<<mMcJpsi->eminusPt<<"  "<<mMcJpsi->eminusEta<<"  "<<mMcJpsi->eminusPhi<<endl;
+				   cout<<"(EmcE, neta, nphi, zdist, phidist, mindist) = "<<mMcJpsi->eminusEmcE<<"  "<<mMcJpsi->eminusnEta<<"  "<<mMcJpsi->eminusnPhi<<"  "<<mMcJpsi->eminusZDist<<"  "<<mMcJpsi->eminusPhiDist<<"  "<<mMcJpsi->eminusMinDist<<endl;
+				   }
+				   */
+			}
+
+		}
+		char buf[1024];
+		sprintf(buf,"%s_cent_%d_%d.root", OutFile, mCentCut1, mCentCut2);
+		TFile *f = new TFile(buf,"recreate");
+		f->cd();
+		hMcVertexZ->Write();
+		hMcVertexXY->Write();
+		hRcVertexZ->Write();
+		hVertexZdiff->Write();
+		hRefMult->Write();
+		hRefMultCut->Write();
+
+		hMcElectronPt->Write();
+		hMcElectronY->Write();
+		hMcElectronPtY->Write();
+		hMcElectronPhi->Write();
+
+		hdEtadPhi->Write();
+		hdEtadPhiHT1->Write();
+		hdEtadPhiCut->Write();
+		hdEtadPhiHT1Cut->Write();
+
+		hRcElectronPt->Write();
+		hRcElectronEta->Write();
+		hRcElectronPtEta->Write();
+		hZDistvsPtHT2->Write();
+		hPhiDistvsPtHT2->Write();
+
+		hPvsEHT3->Write();
+		hPmcvsEHT3->Write();
+		hPEvsPtHT3->Write();
+		hnEtavsPtHT3->Write();
+		hnPhivsPtHT3->Write();
+		hZDistvsPtHT3->Write();
+		hPhiDistvsPtHT3->Write();
+
+		hPvsEHT0->Write();
+		hPmcvsEHT0->Write();
+		hPEvsPtHT0->Write();
+		hnEtavsPtHT0->Write();
+		hnPhivsPtHT0->Write();
+		hZDistvsPtHT0->Write();
+		hPhiDistvsPtHT0->Write();
+
+		hElectronMc->Write();
+		hElectronTrk->Write();
+		hElectronMatch->Write();
+
+		hHt0ElectronTrg->Write();
+		hHt0ElectronAdc0->Write();
+		hHt0ElectronPE->Write();
+		hHt0ElectronNSMD->Write();
+		hHt0ElectronDist->Write();
+
+		hHt1ElectronTrg->Write();
+		hHt1ElectronAdc0->Write();
+		hHt1ElectronPE->Write();
+		hHt1ElectronNSMD->Write();
+		hHt1ElectronDist->Write();
+
+		hHt2ElectronTrg->Write();
+		hHt2ElectronAdc0->Write();
+		hHt2ElectronPE->Write();
+		hHt2ElectronNSMD->Write();
+		hHt2ElectronDist->Write();
+
+		hHt3ElectronTrg->Write();
+		hHt3ElectronAdc0->Write();
+		hHt3ElectronPE->Write();
+		hHt3ElectronNSMD->Write();
+		hHt3ElectronDist->Write();
+
+		hElectronTrk2->Write();
+		hDeltaRHT1vspt->Write();
+		hDeltaRvspt->Write();
+		hDeltaRHT1vsptCut->Write();
+		hDeltaRvsptCut->Write();
+
+		hHt0Adc0vsPt->Write();
+		hHt1Adc0vsPt->Write();
+		hHt2Adc0vsPt->Write();
+		hHt3Adc0vsPt->Write();
+
+		hHt0Adc0vsPt_1->Write();
+		hHt1Adc0vsPt_1->Write();
+		hHt2Adc0vsPt_1->Write();
+		hHt3Adc0vsPt_1->Write();
+
+		hHt0Adc0vsPt_2->Write();
+		hHt1Adc0vsPt_2->Write();
+		hHt2Adc0vsPt_2->Write();
+		hHt3Adc0vsPt_2->Write();
+
+		f->Close();
 	}
-      }
-      if(tag) continue;
 
-      if(mElectron->mcId>=0) {
-	hMcElectronPt->Fill(mElectron->mcPt);
-	hMcElectronY->Fill(mElectron->mcY);
-	hMcElectronPtY->Fill(mElectron->mcY, mElectron->mcPt);
-	hMcElectronPhi->Fill(mElectron->mcPhi);
-      }
+	//=======================================
+	int getCentrality(int refmult) {
+		int mCentrality = -1;
+		int   cent[] = { 7,9,11,12,14,15,17,19,23};//run10 AuAu200
+		if(     refmult <= cent[0]) mCentrality = 0;
+		else if(refmult <= cent[1]) mCentrality = 1;
+		else if(refmult <= cent[2]) mCentrality = 2;
+		else if(refmult <= cent[3]) mCentrality = 3;
+		else if(refmult <= cent[4]) mCentrality = 4;
+		else if(refmult <= cent[5]) mCentrality = 5;
+		else if(refmult <= cent[6]) mCentrality = 6;
+		else if(refmult <= cent[7]) mCentrality = 7;
+		else if(refmult <= cent[8]) mCentrality = 8;
+		else                        mCentrality = 9;
 
-
-      if(mElectron->mcId>=0&&mElectron->id>=0){
-	//cout<<mElectron->id<<endl;
-	float pt = mElectron->pt;
-	hRcElectronPt->Fill(pt);
-	hRcElectronEta->Fill(mElectron->eta);
-	hRcElectronPtEta->Fill(mElectron->eta, pt);
-	hRcElectronPhi->Fill(mElectron->phi);
-	//cout<<"haha"<<endl;
-	if(fabs(mElectron->eta)<1){
-	  hRcElectronnFitPtsPt->Fill(pt, mElectron->nFitPts+1);
-	  hRcElectronnHitPtsPt->Fill(pt, mElectron->nHitPts+1);
-	  hRcElectronnSigEP->Fill(mElectron->p, mElectron->nSigE);
-	  hRcElectronDcaPt->Fill(pt, mElectron->dca);
-
-	  Float_t p = mElectron->p;
-	  Float_t poE = (mElectron->energy>0)? p/mElectron->energy:9999.;
-	  hPvsE->Fill(p,mElectron->energy);
-	  hPmcvsE->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
-	  hPEvsPt->Fill(pt, poE);
-	  hnEtavsPt->Fill(pt, mElectron->nEta);
-	  hnPhivsPt->Fill(pt, mElectron->nPhi);
-	  hZDistvsPt->Fill(pt, mElectron->zDist);
-	  hPhiDistvsPt->Fill(pt, mElectron->phiDist);
-
-      if(mElectron->geantId==2)
-       {
-          hRcElectronPhiptPos->Fill(pt,mElectron->phi);
-       }
-       if(mElectron->geantId==3)
-       {
-          hRcElectronPhiptNeg->Fill(pt,mElectron->phi);
-       }
-
-	  Float_t ptMc = mElectron->mcPt;
-	  Float_t mcY = mElectron->mcY;
-	  hDsmAdcvsPt->Fill(ptMc, mElectron->dsmAdc0);
-	  hAdc0vsPt->Fill(ptMc, mElectron->adc0);
-	  hDsmAdc0vsAdc0->Fill(mElectron->adc0, mElectron->dsmAdc0);
-
-	  if(mElectron->dsmAdc0>11) {
-	    hHt0Adc0vsPt->Fill(ptMc, mElectron->adc0);
-	    hHt0Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
-	    hPvsEHT0->Fill(p,mElectron->energy);
-	     if(mElectron->nFitPts>=25&&mElectron->dca<1)
-	      {
-                hHt0Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
-		if(mElectron->nEta>=2&&mElectron->nPhi>=2){
-                   if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		     hHt0Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
-		   }
-		}
-	      }
-	    hPvsEHT0->Fill(p,mElectron->energy);
-	    hPmcvsEHT0->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
-	    hPEvsPtHT0->Fill(pt, poE);
-	    hnEtavsPtHT0->Fill(pt, mElectron->nEta);
-	    hnPhivsPtHT0->Fill(pt, mElectron->nPhi);
-	    hZDistvsPtHT0->Fill(pt, mElectron->zDist);
-	    hPhiDistvsPtHT0->Fill(pt, mElectron->phiDist);
-	  }
-	  if(mElectron->dsmAdc0>15) {
-	    hHt1Adc0vsPt->Fill(ptMc, mElectron->adc0);
-	    hHt1Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
-	    hPvsEHT1->Fill(p,mElectron->energy);
-	    hPmcvsEHT1->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
-	    hPEvsPtHT1->Fill(pt, poE);
-	    hnEtavsPtHT1->Fill(pt, mElectron->nEta);
-	    hnPhivsPtHT1->Fill(pt, mElectron->nPhi);
-	    hZDistvsPtHT1->Fill(pt, mElectron->zDist);
-	    hPhiDistvsPtHT1->Fill(pt, mElectron->phiDist);
-	    if(mElectron->nFitPts>=25&&mElectron->dca<1)
-	      {
-                hHt1Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
-		if(mElectron->nEta>=2&&mElectron->nPhi>2){
-		   if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		     hHt1Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
-		   }
-										                    }
-	      }
-	  }
-	  if(mElectron->dsmAdc0>18) {
-	    hHt2Adc0vsPt->Fill(ptMc, mElectron->adc0);
-	    hHt2Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
-	    hPvsEHT2->Fill(p,mElectron->energy);
-	    hPmcvsEHT2->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
-	    hPEvsPtHT2->Fill(pt, poE);
-	    hnEtavsPtHT2->Fill(pt, mElectron->nEta);
-	    hnPhivsPtHT2->Fill(pt, mElectron->nPhi);
-	    hZDistvsPtHT2->Fill(pt, mElectron->zDist);
-	    hPhiDistvsPtHT2->Fill(pt, mElectron->phiDist);
-	    if(mElectron->nFitPts>=25&&mElectron->dca<1)
-	      {
-		hHt2Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
-		if(mElectron->nEta>=2&&mElectron->nPhi>2){
-		  if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01){
-		    hHt2Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
-		  }
-		}
-	      }
-	  }
-	  if(mElectron->dsmAdc0>25) {
-	    hHt3Adc0vsPt->Fill(ptMc, mElectron->adc0);
-	    hHt3Adc0vsPtY->Fill(ptMc, mcY, mElectron->adc0);
-	    hPvsEHT3->Fill(p,mElectron->energy);
-	    hPmcvsEHT3->Fill(mElectron->mcPt*TMath::CosH(mElectron->mcEta),mElectron->energy);
-	    hPEvsPtHT3->Fill(pt, poE);
-	    hnEtavsPtHT3->Fill(pt, mElectron->nEta);
-	    hnPhivsPtHT3->Fill(pt, mElectron->nPhi);
-	    hZDistvsPtHT3->Fill(pt, mElectron->zDist);
-	    hPhiDistvsPtHT3->Fill(pt, mElectron->phiDist);
-	    if(mElectron->nFitPts>=25&&mElectron->dca<1)
-	      {
-                hHt3Adc0vsPt_1->Fill(ptMc,mElectron->adc0);
-		if(mElectron->nEta>=2&&mElectron->nPhi>2){
-		if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01){
-	           hHt3Adc0vsPt_2->Fill(ptMc,mElectron->adc0);
-		}
-		}
-	      }
-	  }
-	}//end of |eta|<1 cut
-      }//end of RC electron loop
-
-      //calculate efficiency
-      if(mElectron->mcId>=0&&fabs(mElectron->mcY)<1) {
-	hElectronMc->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	if(mElectron->id>=0 &&
-	    fabs(mElectron->eta)<1 &&
-	    mElectron->nFitPts>=25 &&
-	    mElectron->dca<1) {//Tracking
-	  hRcElectronPtDiff->Fill(mElectron->mcPt, mElectron->mcY, pt/mElectron->mcPt);
-	  hRcElectronEtaDiff->Fill(mElectron->mcPt, mElectron->mcY, mElectron->eta - mElectron->mcY);
-	  hRcElectronPhiDiff->Fill(mElectron->mcPt, mElectron->mcY, mElectron->phi - mElectron->mcPhi);
-
-	  hElectronTrk->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	  if(mElectron->energy>0) {
-	    hElectronMatch->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-
-	    if(mElectron->dsmAdc0>11) {
-	      hHt0ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	      if(mElectron->adc0>180) {
-		hHt0ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
-		  hHt0ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		  if(mElectron->nEta>=2&&mElectron->nPhi>=2){
-		    hHt0ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		      hHt0ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    }//distance
-		  }//#SMD strips
-		}//PE
-	      }//Adc0
-	    }//Trigger
-
-
-	    if(mElectron->dsmAdc0>15) {
-	      hHt1ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	      if(mElectron->adc0>250) {
-		hHt1ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
-		  hHt1ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		  if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
-		    hHt1ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		      hHt1ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    }//distance
-		  }//#SMD strips
-		}//PE
-	      }//Adc0
-	    }//Trigger
-
-	    if(mElectron->dsmAdc0>18) {
-	      hHt2ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	      if(mElectron->adc0>300) {
-		hHt2ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
-		  hHt2ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		  if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
-		    hHt2ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		      hHt2ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    }//distance
-		  }//#SMD strips
-		}//PE
-	      }//Adc0
-	    }//Trigger
-
-	    if(mElectron->dsmAdc0>25) {
-	      hHt3ElectronTrg->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-	      if(mElectron->adc0>400) {
-		hHt3ElectronAdc0->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		if(mElectron->p/mElectron->energy>0.3&&mElectron->p/mElectron->energy<1.5) {
-		  hHt3ElectronPE->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		  if(mElectron->nEta>=2&&mElectron->nPhi>=2) {
-		    hHt3ElectronNSMD->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    if(fabs(mElectron->zDist)<2&&fabs(mElectron->phiDist)<0.01) {
-		      hHt3ElectronDist->Fill(mElectron->mcY,mElectron->mcPhi, mElectron->mcPt);
-		    }//distance
-		  }//#SMD strips
-		}//PE
-	      }//Adc0
-	    }//Trigger
-
-
-	  }//EMC match
-	}//Tracking
-
-	if(mElectron->id>=0 &&
-	   fabs(mElectron->eta)<1 &&
-	   mElectron->nFitPts>=25 &&
-	   mElectron->dca<3) {
-	  hElectronTrk2->Fill(mElectron->mcY,mElectron->mcPhi,mElectron->mcPt);
-	}//Tracking 2
-
-      }
-      /*
-	if(mElectron->energy>0) {
-	cout<<"(pt, eta, phi)- = "<<mMcJpsi->eminusPt<<"  "<<mMcJpsi->eminusEta<<"  "<<mMcJpsi->eminusPhi<<endl;
-	cout<<"(EmcE, neta, nphi, zdist, phidist, mindist) = "<<mMcJpsi->eminusEmcE<<"  "<<mMcJpsi->eminusnEta<<"  "<<mMcJpsi->eminusnPhi<<"  "<<mMcJpsi->eminusZDist<<"  "<<mMcJpsi->eminusPhiDist<<"  "<<mMcJpsi->eminusMinDist<<endl;
+		return mCentrality;
 	}
-      */
-      }
-
-  }
-  char buf[1024];
-  sprintf(buf,"%s_cent_%d_%d.root", OutFile, mCentCut1, mCentCut2);
-  TFile *f = new TFile(buf,"recreate");
-  f->cd();
-  hMcVertexZ->Write();
-  hMcVertexXY->Write();
-  hRcVertexZ->Write();
-  hVertexZdiff->Write();
-  hRefMult->Write();
-  hRefMultCut->Write();
-
-  hMcElectronPt->Write();
-  hMcElectronY->Write();
-  hMcElectronPtY->Write();
-  hMcElectronPhi->Write();
-
-  hdEtadPhi->Write();
-  hdEtadPhiHT0->Write();
-  hdEtadPhiCut->Write();
-  hdEtadPhiHT0Cut->Write();
-
-  hRcElectronPt->Write();
-  hRcElectronEta->Write();
-  hRcElectronPtEta->Write();
-  hZDistvsPtHT2->Write();
-  hPhiDistvsPtHT2->Write();
-
-  hPvsEHT3->Write();
-  hPmcvsEHT3->Write();
-  hPEvsPtHT3->Write();
-  hnEtavsPtHT3->Write();
-  hnPhivsPtHT3->Write();
-  hZDistvsPtHT3->Write();
-  hPhiDistvsPtHT3->Write();
-
-  hPvsEHT0->Write();
-  hPmcvsEHT0->Write();
-  hPEvsPtHT0->Write();
-  hnEtavsPtHT0->Write();
-  hnPhivsPtHT0->Write();
-  hZDistvsPtHT0->Write();
-  hPhiDistvsPtHT0->Write();
-
-  hElectronMc->Write();
-  hElectronTrk->Write();
-  hElectronMatch->Write();
-
-  hHt0ElectronTrg->Write();
-  hHt0ElectronAdc0->Write();
-  hHt0ElectronPE->Write();
-  hHt0ElectronNSMD->Write();
-  hHt0ElectronDist->Write();
-
-  hHt1ElectronTrg->Write();
-  hHt1ElectronAdc0->Write();
-  hHt1ElectronPE->Write();
-  hHt1ElectronNSMD->Write();
-  hHt1ElectronDist->Write();
-
-  hHt2ElectronTrg->Write();
-  hHt2ElectronAdc0->Write();
-  hHt2ElectronPE->Write();
-  hHt2ElectronNSMD->Write();
-  hHt2ElectronDist->Write();
-
-  hHt3ElectronTrg->Write();
-  hHt3ElectronAdc0->Write();
-  hHt3ElectronPE->Write();
-  hHt3ElectronNSMD->Write();
-  hHt3ElectronDist->Write();
-
-  hElectronTrk2->Write();
-  hDeltaRHT0vspt->Write();
-  hDeltaRvspt->Write();
-  hDeltaRHT0vsptCut->Write();
-  hDeltaRvsptCut->Write();
-
-  hHt0Adc0vsPt->Write();
-  hHt1Adc0vsPt->Write();
-  hHt2Adc0vsPt->Write();
-  hHt3Adc0vsPt->Write();
-
-  hHt0Adc0vsPt_1->Write();
-  hHt1Adc0vsPt_1->Write();
-  hHt2Adc0vsPt_1->Write();
-  hHt3Adc0vsPt_1->Write();
-
-  hHt0Adc0vsPt_2->Write();
-  hHt1Adc0vsPt_2->Write();
-  hHt2Adc0vsPt_2->Write();
-  hHt3Adc0vsPt_2->Write();
-
-  f->Close();
-}
-
-//=======================================
-int getCentrality(int refmult) {
-  int mCentrality = -1;
-  int   cent[] = { 7,9,11,12,14,15,17,19,23};//run10 AuAu200
-  if(     refmult <= cent[0]) mCentrality = 0;
-  else if(refmult <= cent[1]) mCentrality = 1;
-  else if(refmult <= cent[2]) mCentrality = 2;
-  else if(refmult <= cent[3]) mCentrality = 3;
-  else if(refmult <= cent[4]) mCentrality = 4;
-  else if(refmult <= cent[5]) mCentrality = 5;
-  else if(refmult <= cent[6]) mCentrality = 6;
-  else if(refmult <= cent[7]) mCentrality = 7;
-  else if(refmult <= cent[8]) mCentrality = 8;
-  else                        mCentrality = 9;
-
-  return mCentrality;
-}
 

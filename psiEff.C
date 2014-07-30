@@ -140,7 +140,8 @@ TH3F *hHt3Jpsi3DAdc0 = new TH3F("hHt3Jpsi3DAdc0","hHt3Jpsi3DAdc0;y^{rc};Vz(cm);p
 TH3F *hHt3Jpsi3DPE = new TH3F("hHt3Jpsi3DPE","hHt3Jpsi3DPE;y^{rc};Vz(cm);p_{T}^{rc} (GeV/c)",80,-2,2,200,-200,200,300,0,30);
 TH3F *hHt3Jpsi3DNSMD = new TH3F("hHt3Jpsi3DNSMD","hHt3Jpsi3DNSMD;y^{rc};Vz(cm);p_{T}^{rc} (GeV/c)",80,-2,2,200,-200,200,300,0,30);
 TH3F *hHt3Jpsi3DDist = new TH3F("hHt3Jpsi3DDist","hHt3Jpsi3DDist;y^{rc};Vz(cm);p_{T}^{rc} (GeV/c)",80,-2,2,200,-200,200,300,0,30);
-
+TH2D *hCommonhitsvsRCPt = new TH2D("hCommonhitsvsRCPt","commonhits vs RC pT;tpc commonHits;RC p_{T} (GeV/c)",50,0,50,300,0,300);
+TH2D *hCommonhitsvsMCPt = new TH2D("hCommonhitsvsMCPt","commonhits vs MC pT;tpc commonHits;MC p_{T} (GeV/c)",50,0,50,300,0,300);
 void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff_200", const int mCentCut1=0, const int mCentCut2=9){
  // cout<<"I"<<endl;
   gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
@@ -229,16 +230,17 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
     for(int j=0;j<mElectronEvent->nReal();j++){
       mElectron = (StMyElectron) mElectronEvent->real()->UncheckedAt(j);
       //cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
-      if(mElectron->pGeantId!=160) continue;//not from Jpsi electron
+      if(mElectron->pGeantId!=167) continue;//not from Jpsi electron
       //if(mElectron->pGeantId>0) continue;//not original electron
       if(mElectron->mcId<0) continue;
     //  if(mElectron->tpcCommonHits<10)continue;
-
+		hCommonhitsvsMCPt->(mElectron->tpcCommonHits,mElectron->mcPt);
+		hCommonhitsvsRCPt->(mElectron->tpcCommonHits,mElectron->Pt);
       bool tag = kFALSE;
       for(int k=0;k<mElectronEvent->nReal();k++) {
 	mElectron2 = (StMyElectron) mElectronEvent->real()->UncheckedAt(k);
 	//cout<<k<<"  "<<mElectron2->geantId<<"  "<<mElectron2->pGeantId<<endl;
-	if(mElectron2->pGeantId!=160) continue;
+	if(mElectron2->pGeantId!=167) continue;
 	if(mElectron2->mcId<0) continue;
 	if(mElectron2->mcId==mElectron->mcId) continue;
   //     if(mElectron2->tpcCommonHits<10)continue;
@@ -258,7 +260,7 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
       for(int k=j+1; k<mElectronEvent->nReal();k++) {
 	mElectron2 =  (StMyElectron) mElectronEvent->real()->UncheckedAt(k);
 	//cout<<"xxx"<<k<<"  "<<mElectron2->geantId<<"  "<<mElectron2->pGeantId<<endl;
-	if(mElectron2->pGeantId!=160) continue;
+	if(mElectron2->pGeantId!=167) continue;
 	if(mElectron2->mcId<0) continue;
 //	if(mElectron2->tpcCommonHits<10)continue;
 	if(mElectron2->mcId==mElectron->mcId) continue;
@@ -713,9 +715,11 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
   hHt3Jpsi3DPE->Write();
   hHt3Jpsi3DNSMD->Write();
   hHt3Jpsi3DDist->Write();
-	hMCElectronPt->Write();
-	hRecElectronPt_tpc->Write();
-	hRecElectronPt_EMC->Write();
+  hMCElectronPt->Write();
+  hRecElectronPt_tpc->Write();
+  hRecElectronPt_EMC->Write();
+  hCommonhitsvsRCPt->Write();
+  hCommonhitsvsMCPt->Write();
   f->Close();
   cout<<"done"<<endl;
 }
