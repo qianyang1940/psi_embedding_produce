@@ -234,8 +234,8 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
       //if(mElectron->pGeantId>0) continue;//not original electron
       if(mElectron->mcId<0) continue;
     //  if(mElectron->tpcCommonHits<10)continue;
-		hCommonhitsvsMCPt->(mElectron->tpcCommonHits,mElectron->mcPt);
-		hCommonhitsvsRCPt->(mElectron->tpcCommonHits,mElectron->Pt);
+		hCommonhitsvsMCPt->Fill(mElectron->tpcCommonHits,mElectron->mcPt);
+		hCommonhitsvsRCPt->Fill(mElectron->tpcCommonHits,mElectron->pt);
       bool tag = kFALSE;
       for(int k=0;k<mElectronEvent->nReal();k++) {
 	mElectron2 = (StMyElectron) mElectronEvent->real()->UncheckedAt(k);
@@ -253,7 +253,7 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
 	//cout<<deta<<"  "<<dphi<<"  "<<tag<<endl;
       }
   //  cout<<tag<<endl;
-     if(tag) continue;
+    // if(tag) continue;
 	Double_t pt_tem = mElectron->mcPt;
 	hMCElectronPt->Fill(pt_tem);
 	Int_t count1 =0;
@@ -304,9 +304,10 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
 	}//all of the MC J/psi below are good!!!!!!!!
 
 
+    //hNJpsi->Fill(nJpsi);
 
-     if(mElectron->tpcCommonHits<10)continue;
-     if(mElectron2->tpcCommonHits<10)continue;
+     //if(mElectron->tpcCommonHits<10)continue;
+     //if(mElectron2->tpcCommonHits<10)continue;
 
 	if(mElectron->id>=0 && mElectron2->id>=0) jpsiRc = ePosRc + eNegRc;
      // Double_t weight1 = function_W->Eval(jpsiMc.Pt());
@@ -321,7 +322,7 @@ void psiEff(const char* fileInDir="./out_Jpsi_200", const char* OutFile="jpsiEff
 
 	if(mElectron->id>=0&&mElectron2->id>=0)
        	{
-	      if(jpsiRc.Pt()>(jpsiMc.Pt()*(1.+3*mcPt_sigma)))continue;
+		  // if(jpsiRc.Pt()>(jpsiMc.Pt()*(1.+3*mcPt_sigma)))continue;
 	}
      hmcPtvsrcPt_1->Fill(jpsiRc.Pt(),jpsiMc.Pt());
 	if(mElectron->id>=0&&mElectron2->id>=0){

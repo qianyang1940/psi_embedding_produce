@@ -567,6 +567,8 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		hDeltaRHT1vsptCut->Write();
 		hDeltaRvsptCut->Write();
 
+		hDsmAdcvsPt->Write();
+		hDsmAdc0vsAdc0->Write();
 		hHt0Adc0vsPt->Write();
 		hHt1Adc0vsPt->Write();
 		hHt2Adc0vsPt->Write();
@@ -582,6 +584,14 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		hHt2Adc0vsPt_2->Write();
 		hHt3Adc0vsPt_2->Write();
 
+		hRcElectronnFitPtsPt->Write();
+		hRcElectronnHitPtsPt->Write();
+		hRcElectronnSigEP->Write();
+		hRcElectronDcaPt->Write();
+		hRcElectronPhiptNeg->Write();
+		hRcElectronPhiptPos->Write();
+
+		hRcElectronPhi->Write();
 		f->Close();
 	}
 
