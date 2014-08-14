@@ -198,12 +198,12 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		for (int i = 0; i < nevents; i++) {
 			nb +=chMc.GetEvent(i);
 			chMc.GetEvent(i);
-			cout<<"haha1"<<endl;
+			//cout<<"haha1"<<endl;
 			if(i%10000==0) cout<<"event# "<<i<<endl;
 			int n;
 			if (!mElectronEvent) continue;
 			if (mElectronEvent->eventID()<=0) continue;
-			cout<<"haha"<<endl;
+		//	cout<<"haha"<<endl;
 			hMcVertexZ->Fill(mElectronEvent->mcVertexZ());
 			hMcVertexXY->Fill(mElectronEvent->mcVertexX(), mElectronEvent->mcVertexY());
 			hRcVertexZ->Fill(mElectronEvent->vertexZ());
@@ -217,13 +217,13 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 
 			for(int j=0;j<mElectronEvent->nReal();j++){
 				mElectron = (StMyElectron) mElectronEvent->real()->UncheckedAt(j);
-				cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
+		//		cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
 				if(mElectron->pGeantId!=167) continue;//not from Jpsi electron
 				//if(mElectron->pGeantId>0) continue;//not original electron
 				if(mElectron->mcId<0) continue;
 				hCommonhitsvsMCPt->Fill(mElectron->tpcCommonHits,mElectron->mcPt,mElectron->mcY);
 				hCommonhitsvsRCPt->Fill(mElectron->tpcCommonHits,mElectron->pt,mElectron->mcY);
-				cout<<" tpcCommonHits "<<mElectron->mElectron->tpcCommonHits<<endl;
+		//		cout<<" tpcCommonHits "<<mElectron->mElectron->tpcCommonHits<<endl;
 
 				bool tag = kFALSE;
 				for(int k=0;k<mElectronEvent->nReal();k++) {
