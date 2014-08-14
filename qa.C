@@ -609,6 +609,7 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
   		hCommonhitsvsRCPt->Write();
   		hCommonhitsvsMCPt->Write();
 
+
 		f->Close();
 	}
 

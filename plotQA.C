@@ -567,6 +567,7 @@ void plotQA()
 			}
 			MCAdc->Rebin(6);
 			DataAdc->Rebin(6);
+
 			Int_t MCmss = MCAdc->GetMaximumBin();
 			Int_t MCcounts = MCAdc->GetBinContent(MCmss);
 			MCAdc->GetYaxis()->SetRangeUser(0.,MCcounts*1.3);
@@ -621,7 +622,7 @@ void plotQA()
 	TF1 *fit3[16];
 	TF1 *fit4[16];
 
-	for(Int_t i=0;i<0;i++)
+	for(Int_t i=0;i<4;i++)
 	{
 		c1->cd();
 		c1->Clear();
