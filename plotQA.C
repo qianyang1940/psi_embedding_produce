@@ -77,14 +77,14 @@ void plotQA()
 
 	TFile f("psiEff_2011_psi_cent_0_9.root");
 	mcJpsiPt->Draw();
-	mcJpsiPt->SetXTitle("MC J/#psi p_{T}(GeV/c)");
+	mcJpsiPt->SetXTitle("MC psi(2s) p_{T}(GeV/c)");
 	max = mcJpsiPt->GetMaximum();
 	mcJpsiPt->GetYaxis()->SetRangeUser(0,1.2*max);
 	c1->SaveAs("mcJpsiPt.gif");  
 
 	mcJpsiY->GetXaxis()->SetRangeUser(-3,3);
 	mcJpsiY->Draw();
-	mcJpsiY->SetXTitle("MC J/#psi Y^{mc}");
+	mcJpsiY->SetXTitle("MC psi(2s) Y^{mc}");
 	TLatex l;
 	l.SetTextSize(0.04);
 	l.SetTextColor(kRed);
@@ -97,7 +97,7 @@ void plotQA()
 	c1->SaveAs("mcVertexZ.gif");
 
 	mcJpsiPhi->Draw();
-	mcJpsiPhi->SetXTitle("MC J/#psi #phi");
+	mcJpsiPhi->SetXTitle("MC psi(2s) #phi");
 	max = mcJpsiPhi->GetMaximum();
 	mcJpsiPhi->GetYaxis()->SetRangeUser(0,1.2*max);
 	c1->SaveAs("JpsiPhi.gif");
@@ -117,13 +117,13 @@ void plotQA()
 
 	mcJpsiPtY->Draw("colz");
 	mcJpsiPtY->GetYaxis()->SetRangeUser(0,32);
-	mcJpsiPtY->SetXTitle("MC J/#psi rapidity");
-	mcJpsiPtY->SetYTitle("MC J/#psi p_{T}(GeV/c)");
+	mcJpsiPtY->SetXTitle("MC psi(2s) rapidity");
+	mcJpsiPtY->SetYTitle("MC psi(2s) p_{T}(GeV/c)");
 	c1->SetLogz();
 	c1->SaveAs("mcJpsiYvsPt.gif");
 
 	hNJpsi->Draw();
-	hNJpsi->SetXTitle("# of Jpsi/event");
+	hNJpsi->SetXTitle("# of psi(2s)/event");
 	c1->SaveAs("number.gif");
 
 	refMult->SetXTitle("RefMult");
@@ -461,7 +461,7 @@ void plotQA()
 		ptMax = ptMax + 0.5;
 
 	};
-
+*/
 	///////////////////////////////////////////////////////////////////
 	Int_t i = 7;
 	Float_t ptMin = 2.;
@@ -533,7 +533,7 @@ void plotQA()
 	c1->Clear();
 	c1->Divide(2,2);
 	Int_t k = 0;
-	for(Int_t i=0;i<4;i++)
+	for(Int_t i=0;i<1;i++)
 	{
 		c1->cd();
 		c1->Clear();
@@ -555,11 +555,18 @@ void plotQA()
 
 			Float_t MCadcMax = MCAdc->Integral(adcCut,adcMax);
 			Float_t DataadcMax = DataAdc->Integral(adcCut,adcMax);
-
+			int mcadcmax = MCAdc->GetMaximum();
+			int dataadcmax = DataAdc->GetMaximum();
+			cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+			cout<<"MCadcMax:DataadcMax="<<MCadcMax<<" "<<DataadcMax<<endl;
+			cout<<"mcadcMax:dataadcMax="<<mcadcmax<<" "<<dataadcmax<<endl;
+			cout<<"+++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+			if(j==3)
+			{
+				MCAdc->Scale(DataadcMax/MCadcMax);
+			}
 			MCAdc->Rebin(6);
 			DataAdc->Rebin(6);
-
-			MCAdc->Scale(DataadcMax/MCadcMax);
 			Int_t MCmss = MCAdc->GetMaximumBin();
 			Int_t MCcounts = MCAdc->GetBinContent(MCmss);
 			MCAdc->GetYaxis()->SetRangeUser(0.,MCcounts*1.3);
@@ -614,7 +621,7 @@ void plotQA()
 	TF1 *fit3[16];
 	TF1 *fit4[16];
 
-	for(Int_t i=0;i<4;i++)
+	for(Int_t i=0;i<0;i++)
 	{
 		c1->cd();
 		c1->Clear();
@@ -755,7 +762,6 @@ void plotQA()
 		c1->SaveAs(buff);
 
 	}
-*/
 	/////////////////////////////////////////////////////////////////      
 }
 

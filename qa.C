@@ -150,6 +150,8 @@ TH2F *hDeltaRHT1vspt = new TH2F("hDeltaRHT1vspt","hDeltaRHT1vspt;p_{T} (GeV/c);d
 TH2F *hDeltaRvspt = new TH2F("hDeltaRvspt","hDeltaRvspt;p_{T} (GeV/c);dR",250,0,25,500,0,5);
 TH2F *hDeltaRHT1vsptCut = new TH2F("hDeltaRHT1vsptCut","hDeltaRHT1vsptCut;p_{T} (GeV/c);dR",250,0,25,500,0,5);
 TH2F *hDeltaRvsptCut = new TH2F("hDeltaRvsptCut","hDeltaRvsptCut;p_{T} (GeV/c);dR",250,0,25,500,0,5);
+TH3D *hCommonhitsvsRCPt = new TH3D("hCommonhitsvsRCPt","commonhits vs RC pT;tpc commonHits;RC p_{T} (GeV/c);#eta",50,0,50,300,0,30,120,-3,3);
+TH3D *hCommonhitsvsMCPt = new TH3D("hCommonhitsvsMCPt","commonhits vs MC pT;tpc commonHits;MC p_{T} (GeV/c);#eta",50,0,50,300,0,30,120,-3,3);
 
 void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int mCentCut1=0, const int mCentCut2=9){
 	gROOT->LoadMacro("$STAR/StRoot/StMuDSTMaker/COMMON/macros/loadSharedLibraries.C");
@@ -196,11 +198,12 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		for (int i = 0; i < nevents; i++) {
 			nb +=chMc.GetEvent(i);
 			chMc.GetEvent(i);
+			cout<<"haha1"<<endl;
 			if(i%10000==0) cout<<"event# "<<i<<endl;
 			int n;
 			if (!mElectronEvent) continue;
 			if (mElectronEvent->eventID()<=0) continue;
-			// cout<<"haha"<<endl;
+			cout<<"haha"<<endl;
 			hMcVertexZ->Fill(mElectronEvent->mcVertexZ());
 			hMcVertexXY->Fill(mElectronEvent->mcVertexX(), mElectronEvent->mcVertexY());
 			hRcVertexZ->Fill(mElectronEvent->vertexZ());
@@ -214,10 +217,13 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 
 			for(int j=0;j<mElectronEvent->nReal();j++){
 				mElectron = (StMyElectron) mElectronEvent->real()->UncheckedAt(j);
-				//cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
+				cout<<j<<"  "<<mElectron->geantId<<"  "<<mElectron->pGeantId<<endl;
 				if(mElectron->pGeantId!=167) continue;//not from Jpsi electron
 				//if(mElectron->pGeantId>0) continue;//not original electron
 				if(mElectron->mcId<0) continue;
+				hCommonhitsvsMCPt->Fill(mElectron->tpcCommonHits,mElectron->mcPt,mElectron->mcY);
+				hCommonhitsvsRCPt->Fill(mElectron->tpcCommonHits,mElectron->pt,mElectron->mcY);
+				cout<<" tpcCommonHits "<<mElectron->mElectron->tpcCommonHits<<endl;
 
 				bool tag = kFALSE;
 				for(int k=0;k<mElectronEvent->nReal();k++) {
@@ -514,6 +520,7 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		hRcElectronPt->Write();
 		hRcElectronEta->Write();
 		hRcElectronPtEta->Write();
+		hRcElectronPhi->Write();
 		hZDistvsPtHT2->Write();
 		hPhiDistvsPtHT2->Write();
 
@@ -569,10 +576,19 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 
 		hDsmAdcvsPt->Write();
 		hDsmAdc0vsAdc0->Write();
+		hAdc0vsPt->Write();
 		hHt0Adc0vsPt->Write();
 		hHt1Adc0vsPt->Write();
 		hHt2Adc0vsPt->Write();
 		hHt3Adc0vsPt->Write();
+
+		hHt2Adc0vsPtY->Write();
+		hPvsEHT2->Write();
+		hPmcvsEHT2->Write();
+		hPEvsPtHT2->Write();
+		hRcElectronPtDiff->Write();
+		hRcElectronEtaDiff->Write();
+		hRcElectronPhiDiff->Write();
 
 		hHt0Adc0vsPt_1->Write();
 		hHt1Adc0vsPt_1->Write();
@@ -590,8 +606,9 @@ void qa(const char* fileInDir="./", const char* OutFile="jpsi_qa_100", const int
 		hRcElectronDcaPt->Write();
 		hRcElectronPhiptNeg->Write();
 		hRcElectronPhiptPos->Write();
+  		hCommonhitsvsRCPt->Write();
+  		hCommonhitsvsMCPt->Write();
 
-		hRcElectronPhi->Write();
 		f->Close();
 	}
 

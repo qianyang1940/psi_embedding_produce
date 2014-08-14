@@ -26,4 +26,8 @@ psi.csh is used to do calculate psi efficiency
 when you run it 
 ./qs.csh psi 10[0,1] 0 9
 
+plotQA_Electron.C
+this code is used to plot MC electron information;
 
+plotQA.C
+this code is used to produce MC embedding QA;
